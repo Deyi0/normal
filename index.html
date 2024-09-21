@@ -5,31 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Video Display with Title, Views, Likes, and PFP</title>
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        html, body {
+            height: 100%;
             margin: 0;
             background-color: #1a1a1a;
             color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding: 20px;
         }
 
         iframe {
             width: 80%;
-            height: 80vh;
+            height: 50vh; /* Adjust iframe height for better scrolling */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
 
-        .video-info {
+        .video-info, .channel-info {
             text-align: center;
-            margin-top: 15px;
-        }
-
-        .channel-info {
-            text-align: center;
-            margin-top: 10px;
+            margin-bottom: 20px;
         }
 
         .channel-info img {
@@ -62,7 +63,6 @@
     </div>
 
     <script>
-        // Replace this with your own API key
         const apiKey = 'AIzaSyBUuC2jjobZpy-DfmS1iv1ZNy-J2ngnCBU';
         const videoId = '3wbKn7ZvCCQ';
         const videoApiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${apiKey}`;
