@@ -32,7 +32,6 @@
             display: flex;
             align-items: center;
             margin-bottom: 10px; /* Space between channel info and video title */
-            margin-left: -50px; /* Move channel info to the left */
         }
 
         #channel-pfp {
@@ -40,8 +39,19 @@
             width: 50px; /* Set a small size */
             height: 50px; /* Set a small size */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            margin-right: 10px; /* Space between PFP and name */
+            margin-right: 10px; /* Adjust space between PFP and name */
             cursor: grab; /* Change cursor to indicate drag */
+            position: absolute; /* Enable dragging */
+            display: block; /* Ensure PFP is visible */
+        }
+
+        #channel-name {
+            margin-left: 60px; /* Space for the PFP */
+        }
+
+        /* Custom styling for the draggable PFP */
+        .draggable {
+            z-index: 1000;
         }
     </style>
 </head>
@@ -55,7 +65,7 @@
     </iframe>
 
     <div class="channel-info">
-        <img id="channel-pfp" src="" alt="Channel Profile Picture" style="display: none;">
+        <img id="channel-pfp" class="draggable" src="" alt="Channel Profile Picture" style="display: none;">
         <h3 id="channel-name" style="display: none;">Loading channel name...</h3>
     </div>
 
@@ -66,7 +76,6 @@
     </div>
 
     <script>
-        // Replace this with your own API key
         const apiKey = 'AIzaSyBUuC2jjobZpy-DfmS1iv1ZNy-J2ngnCBU';
         const videoId = '3wbKn7ZvCCQ';
         const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${apiKey}`;
@@ -110,6 +119,17 @@
                     name.textContent = channelName;
                     pfp.style.display = "block"; // Show the PFP
                     name.style.display = "block"; // Show the channel name
+
+                    // Set the original position near the channel name
+                    const channelInfo = document.querySelector('.channel-info');
+                    const channelRect = channelInfo.getBoundingClientRect();
+                    const pfpOffset = 15; // Offset to position the PFP correctly
+                    pfp.style.left = `${channelRect.left - pfpOffset}px`;
+                    pfp.style.top = `${channelRect.top + (channelRect.height / 2) - (pfp.offsetHeight / 2)}px`;
+                    
+                    // Store the original position for snapping
+                    originalPosition.x = parseInt(pfp.style.left);
+                    originalPosition.y = parseInt(pfp.style.top);
                 }
             })
             .catch(error => {
@@ -122,6 +142,10 @@
         // Dragging functionality for PFP
         const pfp = document.getElementById('channel-pfp');
         let offsetX, offsetY;
+        const originalPosition = { 
+            x: 0, // Placeholder for original position
+            y: 0 
+        };
 
         pfp.addEventListener('mousedown', (e) => {
             e.preventDefault(); // Prevent default dragging behavior
@@ -142,6 +166,16 @@
             document.removeEventListener('mousemove', drag);
             document.removeEventListener('mouseup', stopDrag);
             pfp.style.cursor = 'grab'; // Change cursor back
+
+            // Snap back if close to original position
+            const snapThreshold = 50; // Distance threshold to snap back
+            const distanceX = Math.abs(pfp.getBoundingClientRect().left - originalPosition.x);
+            const distanceY = Math.abs(pfp.getBoundingClientRect().top - originalPosition.y);
+
+            if (distanceX < snapThreshold && distanceY < snapThreshold) {
+                pfp.style.left = `${originalPosition.x}px`;
+                pfp.style.top = `${originalPosition.y}px`;
+            }
         }
     </script>
 
