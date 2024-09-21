@@ -3,63 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Video Display with Title, Views, Likes, PFP, and Description Toggle</title>
+    <title>YouTube Video Display with Title, Views, and Likes</title>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            background-color: #1a1a1a;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-
         body {
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
-            overflow-y: auto; /* Enable vertical scrolling */
-            padding: 20px;
+            height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+            color: white;
+            position: relative;
         }
 
         iframe {
-            width: 90%; /* Make the video wider */
-            height: 60vh; /* Increase the video height */
+            width: 80%;
+            height: 80vh;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
         }
 
-        .video-info, .channel-info {
+        .video-info {
             text-align: center;
-            margin-bottom: 20px;
+            margin-top: 5px; /* Adjusted margin */
         }
 
-        .channel-info img {
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .channel-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px; /* Space between channel info and video title */
+            margin-left: -50px; /* Move channel info to the left */
         }
 
-        #description {
-            display: none; /* Hide description by default */
-            margin-top: 15px;
-            text-align: left;
-            width: 90%;
-        }
-
-        button {
-            margin-top: 15px;
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
+        #channel-pfp {
+            border-radius: 50%; /* Make it circular */
+            width: 50px; /* Set a small size */
+            height: 50px; /* Set a small size */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            margin-right: 10px; /* Space between PFP and name */
+            cursor: grab; /* Change cursor to indicate drag */
         }
     </style>
 </head>
@@ -72,96 +54,95 @@
         allowfullscreen>
     </iframe>
 
-    <div class="video-info" id="video-info">
+    <div class="channel-info">
+        <img id="channel-pfp" src="" alt="Channel Profile Picture" style="display: none;">
+        <h3 id="channel-name" style="display: none;">Loading channel name...</h3>
+    </div>
+
+    <div class="video-info">
         <h2 id="video-title">Loading title...</h2>
         <p id="video-views">Loading views...</p>
         <p id="video-likes">Loading likes...</p>
     </div>
 
-    <div id="description">
-        <h4>Description:</h4>
-        <p id="video-description">Loading description...</p>
-    </div>
-
-    <button id="toggle-description">Show Description</button>
-
-    <div class="channel-info" id="channel-info">
-        <img id="channel-pfp" src="" alt="Channel Profile Picture">
-        <h3 id="channel-name">Loading channel name...</h3>
-    </div>
-
     <script>
+        // Replace this with your own API key
         const apiKey = 'AIzaSyBUuC2jjobZpy-DfmS1iv1ZNy-J2ngnCBU';
         const videoId = '3wbKn7ZvCCQ';
-        const videoApiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${apiKey}`;
+        const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${apiKey}`;
 
         // Fetch video data from YouTube API
-        fetch(videoApiUrl)
+        fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
                 if (data.items.length > 0) {
                     const videoData = data.items[0];
                     const title = videoData.snippet.title;
                     const views = videoData.statistics.viewCount;
-                    const likes = videoData.statistics.likeCount;
-                    const description = videoData.snippet.description; // Fetch description
+                    const likes = videoData.statistics.likeCount; // Fetch likes
                     const channelId = videoData.snippet.channelId;
 
-                    // Update video info
+                    // Update the page with video title, views, and likes
                     document.getElementById('video-title').textContent = title;
                     document.getElementById('video-views').textContent = `👁 ${views} views`;
                     document.getElementById('video-likes').textContent = `👍 ${likes} likes`;
-                    document.getElementById('video-description').textContent = description; // Update description
 
-                    // Fetch channel data using the channel ID
+                    // Fetch channel data to get the PFP and name
                     const channelApiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
                     return fetch(channelApiUrl);
                 } else {
-                    throw new Error('Video not found');
+                    document.getElementById('video-title').textContent = "Video not found";
+                    document.getElementById('video-views').textContent = "";
+                    document.getElementById('video-likes').textContent = "";
                 }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.items.length > 0) {
                     const channelData = data.items[0];
-                    const channelName = channelData.snippet.title;
-                    const profilePicUrl = channelData.snippet.thumbnails.high.url; // Use high-res thumbnail
+                    const profilePicUrl = channelData.snippet.thumbnails.default.url; // Use default thumbnail
+                    const channelName = channelData.snippet.title; // Get channel name
 
-                    // Update channel info
-                    document.getElementById('channel-name').textContent = channelName;
-                    document.getElementById('channel-pfp').src = profilePicUrl;
-                } else {
-                    document.getElementById('channel-name').textContent = "Channel not found";
+                    // Update the PFP and channel name
+                    const pfp = document.getElementById('channel-pfp');
+                    const name = document.getElementById('channel-name');
+                    pfp.src = profilePicUrl;
+                    name.textContent = channelName;
+                    pfp.style.display = "block"; // Show the PFP
+                    name.style.display = "block"; // Show the channel name
                 }
             })
             .catch(error => {
-                console.error('Error fetching data:', error);
+                console.error('Error fetching video data:', error);
                 document.getElementById('video-title').textContent = "Error loading video title";
                 document.getElementById('video-views').textContent = "Error loading video views";
                 document.getElementById('video-likes').textContent = "Error loading video likes";
-                document.getElementById('video-description').textContent = "Error loading description";
-                document.getElementById('channel-name').textContent = "Error loading channel name";
             });
 
-        // Toggle description visibility and other elements
-        document.getElementById('toggle-description').addEventListener('click', () => {
-            const description = document.getElementById('description');
-            const videoInfo = document.getElementById('video-info');
-            const channelInfo = document.getElementById('channel-info');
-            const button = document.getElementById('toggle-description');
+        // Dragging functionality for PFP
+        const pfp = document.getElementById('channel-pfp');
+        let offsetX, offsetY;
 
-            if (description.style.display === "none") {
-                description.style.display = "block";
-                videoInfo.style.display = "none"; // Hide video info when description is shown
-                channelInfo.style.display = "none"; // Hide channel info when description is shown
-                button.textContent = "Hide Description";
-            } else {
-                description.style.display = "none";
-                videoInfo.style.display = "block"; // Show video info when description is hidden
-                channelInfo.style.display = "block"; // Show channel info when description is hidden
-                button.textContent = "Show Description";
-            }
+        pfp.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // Prevent default dragging behavior
+            offsetX = e.clientX - pfp.getBoundingClientRect().left;
+            offsetY = e.clientY - pfp.getBoundingClientRect().top;
+            pfp.style.cursor = 'grabbing'; // Change cursor to grabbing
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDrag);
         });
+
+        function drag(e) {
+            pfp.style.position = 'absolute'; // Ensure it can move freely
+            pfp.style.left = `${e.clientX - offsetX}px`;
+            pfp.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function stopDrag() {
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', stopDrag);
+            pfp.style.cursor = 'grab'; // Change cursor back
+        }
     </script>
 
 </body>
