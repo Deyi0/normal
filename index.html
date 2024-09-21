@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Video Display with Title, Views, and Likes</title>
+    <title>YouTube Video Display with Title, Views, Likes, and PFP</title>
     <style>
         body {
             display: flex;
@@ -26,6 +26,19 @@
             text-align: center;
             margin-top: 15px;
         }
+
+        .channel-info {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .channel-info img {
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -43,37 +56,60 @@
         <p id="video-likes">Loading likes...</p>
     </div>
 
+    <div class="channel-info">
+        <img id="channel-pfp" src="" alt="Channel Profile Picture">
+        <h3 id="channel-name">Loading channel name...</h3>
+    </div>
+
     <script>
         // Replace this with your own API key
         const apiKey = 'AIzaSyBUuC2jjobZpy-DfmS1iv1ZNy-J2ngnCBU';
         const videoId = '3wbKn7ZvCCQ';
-        const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${apiKey}`;
+        const videoApiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${apiKey}`;
 
         // Fetch video data from YouTube API
-        fetch(apiUrl)
+        fetch(videoApiUrl)
             .then(response => response.json())
             .then(data => {
                 if (data.items.length > 0) {
                     const videoData = data.items[0];
                     const title = videoData.snippet.title;
                     const views = videoData.statistics.viewCount;
-                    const likes = videoData.statistics.likeCount; // Fetch likes
+                    const likes = videoData.statistics.likeCount;
+                    const channelId = videoData.snippet.channelId;
 
-                    // Update the page with video title, views, and likes
+                    // Update video info
                     document.getElementById('video-title').textContent = title;
                     document.getElementById('video-views').textContent = `👁 ${views} views`;
                     document.getElementById('video-likes').textContent = `👍 ${likes} likes`;
+
+                    // Fetch channel data using the channel ID
+                    const channelApiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
+                    return fetch(channelApiUrl);
                 } else {
-                    document.getElementById('video-title').textContent = "Video not found";
-                    document.getElementById('video-views').textContent = "";
-                    document.getElementById('video-likes').textContent = "";
+                    throw new Error('Video not found');
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.items.length > 0) {
+                    const channelData = data.items[0];
+                    const channelName = channelData.snippet.title;
+                    const profilePicUrl = channelData.snippet.thumbnails.high.url; // Use high-res thumbnail
+
+                    // Update channel info
+                    document.getElementById('channel-name').textContent = channelName;
+                    document.getElementById('channel-pfp').src = profilePicUrl;
+                } else {
+                    document.getElementById('channel-name').textContent = "Channel not found";
                 }
             })
             .catch(error => {
-                console.error('Error fetching video data:', error);
+                console.error('Error fetching data:', error);
                 document.getElementById('video-title').textContent = "Error loading video title";
                 document.getElementById('video-views').textContent = "Error loading video views";
                 document.getElementById('video-likes').textContent = "Error loading video likes";
+                document.getElementById('channel-name').textContent = "Error loading channel name";
             });
     </script>
 
