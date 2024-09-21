@@ -72,7 +72,7 @@
         allowfullscreen>
     </iframe>
 
-    <div class="video-info">
+    <div class="video-info" id="video-info">
         <h2 id="video-title">Loading title...</h2>
         <p id="video-views">Loading views...</p>
         <p id="video-likes">Loading likes...</p>
@@ -85,7 +85,7 @@
 
     <button id="toggle-description">Show Description</button>
 
-    <div class="channel-info">
+    <div class="channel-info" id="channel-info">
         <img id="channel-pfp" src="" alt="Channel Profile Picture">
         <h3 id="channel-name">Loading channel name...</h3>
     </div>
@@ -143,16 +143,22 @@
                 document.getElementById('channel-name').textContent = "Error loading channel name";
             });
 
-        // Toggle description visibility
+        // Toggle description visibility and other elements
         document.getElementById('toggle-description').addEventListener('click', () => {
             const description = document.getElementById('description');
+            const videoInfo = document.getElementById('video-info');
+            const channelInfo = document.getElementById('channel-info');
             const button = document.getElementById('toggle-description');
 
             if (description.style.display === "none") {
                 description.style.display = "block";
+                videoInfo.style.display = "none"; // Hide video info when description is shown
+                channelInfo.style.display = "none"; // Hide channel info when description is shown
                 button.textContent = "Hide Description";
             } else {
                 description.style.display = "none";
+                videoInfo.style.display = "block"; // Show video info when description is hidden
+                channelInfo.style.display = "block"; // Show channel info when description is hidden
                 button.textContent = "Show Description";
             }
         });
