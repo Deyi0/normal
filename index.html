@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Video Display with Title and Views</title>
+    <title>YouTube Video Display with Title, Views, and Likes</title>
     <style>
         body {
             display: flex;
@@ -40,6 +40,7 @@
     <div class="video-info">
         <h2 id="video-title">Loading title...</h2>
         <p id="video-views">Loading views...</p>
+        <p id="video-likes">Loading likes...</p>
     </div>
 
     <script>
@@ -56,19 +57,23 @@
                     const videoData = data.items[0];
                     const title = videoData.snippet.title;
                     const views = videoData.statistics.viewCount;
+                    const likes = videoData.statistics.likeCount; // Fetch likes
 
-                    // Update the page with video title and views
+                    // Update the page with video title, views, and likes
                     document.getElementById('video-title').textContent = title;
                     document.getElementById('video-views').textContent = `${views} views`;
+                    document.getElementById('video-likes').textContent = `${likes} likes`;
                 } else {
                     document.getElementById('video-title').textContent = "Video not found";
                     document.getElementById('video-views').textContent = "";
+                    document.getElementById('video-likes').textContent = "";
                 }
             })
             .catch(error => {
                 console.error('Error fetching video data:', error);
                 document.getElementById('video-title').textContent = "Error loading video title";
                 document.getElementById('video-views').textContent = "";
+                document.getElementById('video-likes').textContent = "";
             });
     </script>
 
