@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Video Display with Title, Views, Likes, and PFP</title>
+    <title>YouTube Video Display with Title, Views, Likes, PFP, and Description Toggle</title>
     <style>
         html, body {
             height: 100%;
@@ -40,6 +40,27 @@
             margin-bottom: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
+        #description {
+            display: none; /* Hide description by default */
+            margin-top: 15px;
+            text-align: left;
+            width: 90%;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -56,6 +77,13 @@
         <p id="video-views">Loading views...</p>
         <p id="video-likes">Loading likes...</p>
     </div>
+
+    <div id="description">
+        <h4>Description:</h4>
+        <p id="video-description">Loading description...</p>
+    </div>
+
+    <button id="toggle-description">Show Description</button>
 
     <div class="channel-info">
         <img id="channel-pfp" src="" alt="Channel Profile Picture">
@@ -76,12 +104,14 @@
                     const title = videoData.snippet.title;
                     const views = videoData.statistics.viewCount;
                     const likes = videoData.statistics.likeCount;
+                    const description = videoData.snippet.description; // Fetch description
                     const channelId = videoData.snippet.channelId;
 
                     // Update video info
                     document.getElementById('video-title').textContent = title;
                     document.getElementById('video-views').textContent = `👁 ${views} views`;
                     document.getElementById('video-likes').textContent = `👍 ${likes} likes`;
+                    document.getElementById('video-description').textContent = description; // Update description
 
                     // Fetch channel data using the channel ID
                     const channelApiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
@@ -109,8 +139,23 @@
                 document.getElementById('video-title').textContent = "Error loading video title";
                 document.getElementById('video-views').textContent = "Error loading video views";
                 document.getElementById('video-likes').textContent = "Error loading video likes";
+                document.getElementById('video-description').textContent = "Error loading description";
                 document.getElementById('channel-name').textContent = "Error loading channel name";
             });
+
+        // Toggle description visibility
+        document.getElementById('toggle-description').addEventListener('click', () => {
+            const description = document.getElementById('description');
+            const button = document.getElementById('toggle-description');
+
+            if (description.style.display === "none") {
+                description.style.display = "block";
+                button.textContent = "Hide Description";
+            } else {
+                description.style.display = "none";
+                button.textContent = "Show Description";
+            }
+        });
     </script>
 
 </body>
